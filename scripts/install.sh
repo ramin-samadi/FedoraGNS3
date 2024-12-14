@@ -51,7 +51,7 @@ run_command sudo dnf update -y
 
 # Install GNS3 dependencies
 log_message "Installing GNS3 dependencies..."
-run_command sudo dnf install -y qemu-kvm libvirt libvirt-daemon libvirt-client bridge-utils virt-manager dynamips ubridge wireshark gns3-gui gns3-server
+run_command sudo dnf install -y qemu-kvm libvirt libvirt-daemon libvirt-client bridge-utils virt-manager dynamips ubridge wireshark gns3-gui gns3-server tigervnc vinagre xterm
 
 # Enable and start libvirtd service
 log_message "Starting and enabling libvirtd service..."
