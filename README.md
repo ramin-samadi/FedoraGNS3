@@ -17,8 +17,10 @@ FedoraGNS3
     │   └── vpcs # VPCS binary for GNS3
     ├── LICENSE # MIT License file
     ├── README.md # Project documentation
-    └── scripts 
-        └── install.sh # Installation script for GNS3 
+    ├── scripts
+    │   └── install.sh # Installation script for GNS3
+    └── services
+        └── start-libvirt-network.service # Autostartup service for virbr0 interface
 ```
 
 ## Prerequisites
