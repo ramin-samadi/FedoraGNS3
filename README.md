@@ -71,9 +71,9 @@ Once installed:
     ```bash
     systemctl status libvirtd
     ```
-  - Your CPU supports virtualization:
+  - Your CPU supports virtualization (If it shows 0 then it is disabled):
     ```bash
-    grep -E '(vmx|svm)' /proc/cpuinfo
+    grep -E -c '(vmx|svm)' /proc/cpuinfo
     ```
 - For additional help, consult the [GNS3 documentation](https://docs.gns3.com/).
 
