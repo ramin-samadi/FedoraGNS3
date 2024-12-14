@@ -62,7 +62,6 @@ run_command sudo systemctl enable --now virtlogd
 log_message "Adding user to necessary groups (ubridge, libvirt, kvm, wireshark)..."
 run_command sudo groupadd ubridge
 run_command sudo usermod -aG ubridge,libvirt,kvm,wireshark "$(whoami)"
-run_command newgrp
 
 # Configure libvirt default network
 log_message "Configuring libvirt default network..."
