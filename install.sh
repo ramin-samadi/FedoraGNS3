@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Constants
+VPCS_BINARY="./bin/vpcs"
+VPCS_INSTALL_PATH="/usr/local/bin/vpcs"
+
 # Check for the --silent flag (optional to suppress output)
 SUPPRESS_OUTPUT=false
 if [ "$1" == "--silent" ]; then
@@ -9,121 +13,70 @@ fi
 # Function to print messages
 log_message() {
     if [ "$SUPPRESS_OUTPUT" == "false" ]; then
-        echo "$1"
+        echo -e "$1"
     fi
 }
 
 # Check if CPU supports nested virtualization
 log_message "Checking if your CPU supports nested virtualization..."
-CPU_SUPPORTS_NESTED=$(grep -E -c '(vmx|svm)' /proc/cpuinfo)
-if [ "$CPU_SUPPORTS_NESTED" -eq 0 ]; then
-    log_message "Your CPU does not support virtualization. Aborting installation."
+if ! grep -E -q '(vmx|svm)' /proc/cpuinfo; then
+    log_message "\033[31mError: Your CPU does not support virtualization. Aborting installation.\033[0m"
     exit 1
 else
-    log_message "CPU supports virtualization. Continuing..."
+    log_message "\033[32mSuccess: CPU supports virtualization. Continuing...\033[0m"
 fi
 
-# Update repositories
-log_message "Updating repositories..."
-if [ "$SUPPRESS_OUTPUT" == "true" ]; then
-    sudo dnf update -y > /dev/null 2>&1
-else
-    sudo dnf update -y
-fi
+# Function to run commands with optional suppression
+run_command() {
+    if [ "$SUPPRESS_OUTPUT" == "true" ]; then
+        "$@" > /dev/null 2>&1
+    else
+        "$@"
+    fi
+}
 
-# Upgrade packages
-log_message "Upgrading repositories..."
-if [ "$SUPPRESS_OUTPUT" == "true" ]; then
-    sudo dnf upgrade -y > /dev/null 2>&1
-else
-    sudo dnf upgrade -y
-fi
+# Update and upgrade repositories
+log_message "Updating and upgrading repositories..."
+run_command sudo dnf update -y
+run_command sudo dnf upgrade -y
 
-# Enable the Free repository
-log_message "Enabling the Fedora Free repository..."
-if [ "$SUPPRESS_OUTPUT" == "true" ]; then
-    sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm > /dev/null 2>&1
-else
-    sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
-fi
+# Enable RPM Fusion repositories
+log_message "Enabling RPM Fusion Free and Nonfree repositories..."
+run_command sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+run_command sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 
-# Enable the Nonfree repository
-log_message "Enabling the Fedora Nonfree repository..."
-if [ "$SUPPRESS_OUTPUT" == "true" ]; then
-    sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm > /dev/null 2>&1
-else
-    sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-fi
-
-# Update repositories again after adding RPMFusion repositories
-log_message "Updating repositories again..."
-if [ "$SUPPRESS_OUTPUT" == "true" ]; then
-    sudo dnf update -y > /dev/null 2>&1
-else
-    sudo dnf update -y
-fi
+# Update repositories after enabling RPM Fusion
+log_message "Updating repositories again after enabling RPM Fusion..."
+run_command sudo dnf update -y
 
 # Install GNS3 dependencies
-log_message "Installing dependencies for GNS3..."
-if [ "$SUPPRESS_OUTPUT" == "true" ]; then
-    sudo dnf install -y qemu-kvm libvirt libvirt-daemon libvirt-client bridge-utils virt-manager dynamips ubridge wireshark > /dev/null 2>&1
-else
-    sudo dnf install -y qemu-kvm libvirt libvirt-daemon libvirt-client bridge-utils virt-manager dynamips ubridge wireshark
-fi
+log_message "Installing GNS3 dependencies..."
+run_command sudo dnf install -y qemu-kvm libvirt libvirt-daemon libvirt-client bridge-utils virt-manager dynamips ubridge wireshark gns3-gui gns3-server
 
-# Start and enable libvirtd on startup
+# Enable and start libvirtd service
 log_message "Starting and enabling libvirtd service..."
-if [ "$SUPPRESS_OUTPUT" == "true" ]; then
-    sudo systemctl enable --now libvirtd > /dev/null 2>&1
+run_command sudo systemctl enable --now libvirtd
+run_command sudo systemctl enable --now virtlogd
+
+# Add the current user to necessary groups
+log_message "Adding user to necessary groups (ubridge, libvirt, kvm, wireshark)..."
+run_command sudo usermod -aG ubridge,libvirt,kvm,wireshark "$(whoami)"
+
+# Configure libvirt default network
+log_message "Configuring libvirt default network..."
+run_command sudo virsh net-start default
+run_command sudo virsh net-autostart default
+
+# Install VPCS binary
+log_message "Installing VPCS binary to $VPCS_INSTALL_PATH..."
+if [ -f "$VPCS_BINARY" ]; then
+    run_command sudo cp "$VPCS_BINARY" "$VPCS_INSTALL_PATH"
+    log_message "\033[32mSuccess: VPCS binary installed to $VPCS_INSTALL_PATH.\033[0m"
 else
-    sudo systemctl enable --now libvirtd
+    log_message "\033[31mError: VPCS binary not found at $VPCS_BINARY. Skipping...\033[0m"
 fi
 
-# Install GNS3 GUI and Server
-log_message "Installing GNS3 GUI and Server..."
-if [ "$SUPPRESS_OUTPUT" == "true" ]; then
-    sudo dnf install -y gns3-gui gns3-server > /dev/null 2>&1
-else
-    sudo dnf install -y gns3-gui gns3-server
-fi
-
-# Add user to necessary groups
-log_message "Adding user to necessary groups..."
-if [ "$SUPPRESS_OUTPUT" == "true" ]; then
-    sudo usermod -aG ubridge,libvirt,kvm,wireshark $(whoami) > /dev/null 2>&1
-else
-    sudo usermod -aG ubridge,libvirt,kvm,wireshark $(whoami)
-fi
-
-log_message "Configuring network interfaces..."
-if [ "$SUPPRESS_OUTPUT" == "true" ]; then
-    sudo systemctl start libvirtd > /dev/null 2>&1
-    sudo systemctl enable libvirtd > /dev/null 2>&1
-    sudo systemctl start virtlogd > /dev/null 2>&1
-    sudo systemctl enable virtlogd > /dev/null 2>&1
-    sudo virsh net-start default > /dev/null 2>&1
-    sudo virsh net-autostart default > /dev/null 2>&1
-else
-    sudo systemctl start libvirtd
-    sudo systemctl enable libvirtd
-    sudo systemctl start virtlogd
-    sudo systemctl enable virtlogd
-    sudo virsh net-start default
-    sudo virsh net-autostart default
-fi
-
-# Fixing VPCS bug on Fedora 41
-log_message "Moving VPCS to /usr/local/bin..."
-if [ "$SUPPRESS_OUTPUT" == "true" ]; then
-    sudo cp ./vpcs /usr/local/bin/ > /dev/null 2>&1
-else
-    sudo cp ./vpcs /usr/local/bin/
-fi
-
+# Final message and system reboot
+log_message "\033[32mGNS3 installation is complete! Rebooting your system to apply changes...\033[0m"
 sleep 5
-# Final message to reboot
-log_message "GNS3 installation is complete. Rebooting your system for the changes to take effect."
-sleep 2
-log_message "Rebooting now..."
-sleep 10
-sudo reboot
+run_command sudo reboot
