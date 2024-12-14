@@ -35,7 +35,7 @@ Ensure you have the following before proceeding:
 1. **Clone the Repository**  
    Download the repository to your local machine:
    ```bash
-   git clone https://github.com/yourusername/FedoraGNS3.git
+   git clone https://github.com/raminsamadi123/FedoraGNS3.git
    cd FedoraGNS3
    ```
 
