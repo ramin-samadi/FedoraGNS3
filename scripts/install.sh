@@ -68,6 +68,8 @@ run_command newgrp
 log_message "Configuring libvirt default network..."
 run_command sudo virsh net-start default
 run_command sudo virsh net-autostart default
+run_command sudo cp ./services/start-libvirt-network.service /etc/systemd/system/
+run_command sudo systemctl enable --now start-libvirt-network.service
 
 # Install VPCS binary
 log_message "Installing VPCS binary to $VPCS_INSTALL_PATH..."
