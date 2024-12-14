@@ -97,10 +97,18 @@ fi
 
 log_message "Configuring network interfaces..."
 if [ "$SUPPRESS_OUTPUT" == "true" ]; then
+    sudo systemctl start libvirtd > /dev/null 2>&1
+    sudo systemctl enable libvirtd > /dev/null 2>&1
+    sudo systemctl start virtlogd > /dev/null 2>&1
+    sudo systemctl enable virtlogd > /dev/null 2>&1
     sudo virsh net-start default > /dev/null 2>&1
     sudo virsh net-autostart default > /dev/null 2>&1
 else
-    sudo virsh net-start default 
+    sudo systemctl start libvirtd
+    sudo systemctl enable libvirtd
+    sudo systemctl start virtlogd
+    sudo systemctl enable virtlogd
+    sudo virsh net-start default
     sudo virsh net-autostart default
 fi
 
