@@ -61,6 +61,8 @@ Once installed:
 
 - Launch the **GNS3 GUI** from your application menu or by typing `gns3` in the terminal.
 - Ensure your user is added to the necessary groups (e.g., `libvirt`, `kvm`, `ubridge`, `wireshark`).
+- If you want to change your console you can do that with ```ptyxis --execute "telnet {host} {port}" --title "{name}"```
+- If you want to change your vnc you can change it to for example vinagre
 
 ## Troubleshooting
 
