@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# Make a temporary installation repository
+git clone https://github.com/ramin-samadi/FedoraGNS3 /tmp/FedoraGNS3
+
 # Constants
-VPCS_BINARY="./bin/vpcs"
+VPCS_BINARY="/tmp/FedoraGNS3/bin/vpcs"
 VPCS_INSTALL_PATH="/usr/local/bin/vpcs"
 
 # Check for the --silent flag (optional to suppress output)
@@ -67,7 +70,7 @@ run_command sudo usermod -aG ubridge,libvirt,kvm,wireshark "$(whoami)"
 log_message "Configuring libvirt default network..."
 run_command sudo virsh net-start default
 run_command sudo virsh net-autostart default
-run_command sudo cp ./services/start-libvirt-network.service /etc/systemd/system/
+run_command sudo cp tmp/FedoraGNS3/services/start-libvirt-network.service /etc/systemd/system/
 run_command sudo systemctl enable --now start-libvirt-network.service
 
 # Install VPCS binary
