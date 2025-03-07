@@ -70,7 +70,7 @@ run_command sudo usermod -aG ubridge,libvirt,kvm,wireshark "$(whoami)"
 log_message "Configuring libvirt default network..."
 run_command sudo virsh net-start default
 run_command sudo virsh net-autostart default
-run_command sudo cp tmp/FedoraGNS3/services/start-libvirt-network.service /etc/systemd/system/
+run_command sudo cp /tmp/FedoraGNS3/services/start-libvirt-network.service /etc/systemd/system/
 run_command sudo systemctl enable --now start-libvirt-network.service
 
 # Install VPCS binary
