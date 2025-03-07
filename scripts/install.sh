@@ -22,7 +22,7 @@ log_message() {
 
 # Check if CPU supports nested virtualization
 log_message "Checking if your CPU supports nested virtualization..."
-if ! grep -E -q '(vmx|svm)' /proc/cpuinfo; then
+if ! /usr/bin/grep -E -q '(vmx|svm)' /proc/cpuinfo; then
     log_message "\033[31mError: Your CPU does not support virtualization. Aborting installation.\033[0m"
     exit 1
 else
