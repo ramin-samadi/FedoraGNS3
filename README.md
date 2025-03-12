@@ -100,6 +100,11 @@ We welcome contributions! Here's how you can help:
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
+VPCS License Notice
+
+The vpcs binary included in the bin directory is provided by the VPCS project and is distributed under the BSD-2-Clause license. In compliance with this license, the original copyright notice
+and disclaimer are retained. For further details, please refer to the [VPCS GitHub repository.](https://github.com/GNS3/vpcs)
+
 ## Acknowledgments
 
 Special thanks to the Fedora community and GNS3 developers for creating an amazing networking simulation platform.
